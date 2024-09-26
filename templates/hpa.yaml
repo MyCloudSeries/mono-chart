@@ -1,0 +1,26 @@
+{{ if eq .Values.environment "prod" }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: "{{ .Values.service_name }}-hpa-{{ .Values.environment }}"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: "{{ .Values.service_name }}-{{ .Values.environment }}"
+  minReplicas: 1
+  maxReplicas: 2
+  metrics: 
+  - type: Resource
+    resource:
+      name: memory 
+      target:
+        type: Utilization
+        averageUtilization: 95
+  - type: Resource
+    resource:
+      name: cpu 
+      target:
+        type: Utilization
+        averageUtilization: 95
+{{ end }}

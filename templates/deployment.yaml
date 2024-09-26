@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Values.service_name }}-{{ .Values.environment }}"
+spec:
+  selector:
+    matchLabels:
+      app: "{{ .Values.service_name }}-{{ .Values.environment }}"
+  replicas: {{ .Values.replicas | default 1 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: "{{ .Values.service_name }}-{{ .Values.environment }}"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: "{{ .Values.service_name }}-{{ .Values.environment }}"
+            topologyKey: "kubernetes.io/hostname"
+      terminationGracePeriodSeconds: 70
+      containers:
+      - name: "{{ .Values.service_name }}-{{ .Values.environment }}"
+        image: "{{ .Values.imageuri }}/{{ .Values.service_name }}-{{ .Values.environment }}:{{ .Values.image_tag }}"
+        securityContext:
+          allowPrivilegeEscalation: false
+        resources:
+          requests:
+            memory: {{ .Values.memory_limit | default "200Mi" }}
+            cpu: {{ .Values.cpu_limit | default "50m" }}
+          limits:
+            memory: {{ .Values.memory_limit | default "200Mi" }}
+        ports:
+        - name: app-port
+          containerPort: {{ .Values.container_port | default 80 }}
+        lifecycle: 
+          preStop: 
+            exec: 
+              command: ["/bin/sh", "-c", "sleep 50"]
+        livenessProbe:
+          httpGet:
+            port: app-port
+            path: {{ .Values.health_check_path }}
+          periodSeconds: 60
+          initialDelaySeconds: 10
+        readinessProbe:
+          httpGet:
+            port: app-port
+            path: {{ .Values.health_check_path }}
+          periodSeconds: 60
+          initialDelaySeconds: 10
+        envFrom:
+        - secretRef:
+            name: "{{ $.Values.service_name }}-secret-{{ $.Values.environment }}"
+      {{ if .Values.cron }}
+      - name: "{{ .Values.service_name }}-{{ .Values.environment }}-cron"
+        image: "{{ .Values.imageuri }}/{{ .Values.service_name }}-{{ .Values.environment }}:{{ .Values.image_tag }}"
+        command: ["node", "app/cron.py"]
+        securityContext:
+          allowPrivilegeEscalation: false
+        resources:
+          requests:
+            memory: {{ .Values.cron_memory_limit | default "200Mi" }}
+            cpu: {{ .Values.cron_cpu_limit | default "50m" }}
+          limits:
+            memory: {{ .Values.cron_memory_limit | default "200Mi" }}
+        lifecycle: 
+          preStop: 
+            exec: 
+              command: ["/bin/sh", "-c", "sleep 50"]
+        envFrom:
+        - secretRef:
+            name: "{{ $.Values.service_name }}-secret-{{ $.Values.environment }}"
+      {{ end }}

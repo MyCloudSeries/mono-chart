@@ -1,0 +1,14 @@
+service_name: myapp
+environment: dev
+image_tag: latest
+replicas: 1
+memory_limit: 400Mi
+cpu_limit: 20m
+cron_memory_limit: 400Mi
+cron_cpu_limit: 20m
+enable_ingress: true
+cron: false
+app_url: demo.example.com
+health_check_path: /health
+imageuri: nimboya/myapp
+container_port: 80

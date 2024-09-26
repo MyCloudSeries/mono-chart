@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Values.service_name }}-svc-{{ .Values.environment }}"
+spec:
+  selector:
+    app: "{{ .Values.service_name }}-{{ .Values.environment }}"
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP

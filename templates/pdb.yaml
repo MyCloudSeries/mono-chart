@@ -1,0 +1,11 @@
+{{ if eq .Values.environment "prod" }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ .Values.service_name }}-pdb-{{ .Values.environment }}"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: "{{ .Values.service_name }}-{{ .Values.environment }}"
+{{ end }}
