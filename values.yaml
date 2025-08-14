@@ -6,7 +6,8 @@ memory_limit: 400Mi
 cpu_limit: 20m
 cron_memory_limit: 400Mi
 cron_cpu_limit: 20m
-enable_ingress: true
+enable_ingress: false
+enable_secret: false
 cron: false
 app_url: demo.example.com
 health_check_path: /health
