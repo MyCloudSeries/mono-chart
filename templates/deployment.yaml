@@ -27,7 +27,7 @@ spec:
       terminationGracePeriodSeconds: 70
       containers:
       - name: "{{ .Values.service_name }}-{{ .Values.environment }}"
-        image: "{{ .Values.imageuri }}/{{ .Values.service_name }}-{{ .Values.environment }}:{{ .Values.image_tag }}"
+        image: "{{ .Values.image_uri }}:{{ .Values.image_tag }}"
         securityContext:
           allowPrivilegeEscalation: false
         resources:

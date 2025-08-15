@@ -11,5 +11,5 @@ enable_secret: false
 cron: false
 app_url: demo.example.com
 health_check_path: /health
-imageuri: nimboya/myapp
+image_uri: nimboya/myapp
 container_port: 80
